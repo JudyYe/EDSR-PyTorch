@@ -59,7 +59,7 @@ class checkpoint():
                 print('Continue from epoch {}...'.format(len(self.log)))
             else:
                 args.load = ''
-
+        self.dir = args.save_dir
         if args.reset:
             os.system('rm -rf ' + self.dir)
             args.load = ''
@@ -147,16 +147,21 @@ class checkpoint():
 
     def save_results(self, dataset, filename, save_list, scale):
         if self.args.save_results:
+            # filename = self.get_path(
+            #     'results-{}'.format(dataset.dataset.name),
+            #     '{}_x{}_'.format(filename, scale)
+            # )
             filename = self.get_path(
                 'results-{}'.format(dataset.dataset.name),
-                '{}_x{}_'.format(filename, scale)
+                '{}'.format(filename)
             )
 
             postfix = ('SR', 'LR', 'HR')
             for v, p in zip(save_list, postfix):
                 normalized = v[0].mul(255 / self.args.rgb_range)
                 tensor_cpu = normalized.byte().permute(1, 2, 0).cpu()
-                self.queue.put(('{}{}.png'.format(filename, p), tensor_cpu))
+                # self.queue.put(('{}{}.png'.format(filename, p), tensor_cpu))
+                self.queue.put(('{}.png'.format(filename), tensor_cpu))
 
 def quantize(img, rgb_range):
     pixel_range = 255 / rgb_range
